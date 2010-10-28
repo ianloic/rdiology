@@ -7,7 +7,6 @@ import urllib
 from django.utils import simplejson as json
 
 
-
 class Rdio(object):
     REQUEST_TOKEN='http://rdio.api.mashery.com/oauth/request_token'
     ACCESS_TOKEN='http://rdio.api.mashery.com/oauth/access_token'

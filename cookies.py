@@ -90,3 +90,15 @@ class Cookies(UserDict.DictMixin):
             raise KeyError(
                 "No cookie has been set with the name %r" % key)
     #end WebOb functions
+
+
+# JSON encoded cookies
+from django.utils import simplejson as json
+import urllib
+class JSONCookies(Cookies):
+    def __getitem__(self, key):
+        return json.loads(urllib.unquote(Cookies.__getitem__(self, key)))
+    def __setitem__(self, key, item):
+        Cookies.__setitem__(self, key, urllib.quote(json.dumps(item)))
+
+

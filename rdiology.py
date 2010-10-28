@@ -2,77 +2,66 @@ CONSUMER_TOKEN='vrun8954fry59w7297mr5ux5'
 CONSUMER_SECRET='MEsUjbamFt'
 
 
-import os
-
+import os, wsgiref, logging
 
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template as _template
-
-import wsgiref, urllib
-
-import cookies
-from django.utils import simplejson as json
+from google.appengine.ext.webapp import template
 
 from rdio import Rdio
+from cookies import JSONCookies as Cookies
 
-
-class Cookies(cookies.Cookies):
-    def __getitem__(self, key):
-        return json.loads(urllib.unquote(cookies.Cookies.__getitem__(self, key)))
-    def __setitem__(self, key, item):
-        cookies.Cookies.__setitem__(self, key, urllib.quote(json.dumps(item)))
-
-
-
-def template(name, template_values={}):
-    return _template.render(os.path.join(os.path.dirname(__file__), 'templates', name), template_values)
 
 
 class RdioRequestHandler(webapp.RequestHandler):
     __cached_rdio = None
+    @property
     def rdio(self):
+        logging.info("get self.rdio")
         if (self.__cached_rdio is None):
             self.__cached_rdio = Rdio(CONSUMER_TOKEN, CONSUMER_SECRET, Cookies(self))
         return self.__cached_rdio
 
+    def template(self, name, template_values={}):
+        self.response.out.write(template.render(os.path.join(os.path.dirname(__file__),
+                                                             'templates', name),
+                                                template_values))
+
 
 class MainPage(RdioRequestHandler):
     def get(self):
-        rdio = self.rdio()
-        self.response.out.write(template('index.html', {
-            'authenticated': rdio.authenticated(),
-        }))
+        logging.info(self.rdio)
+        logging.info(self.rdio.authenticated())
+        self.template('index.html', {
+            'authenticated': self.rdio.authenticated(),
+        })
 
 
 class AuthPage(RdioRequestHandler):
     def get(self):
-        rdio = self.rdio()
+        assert not self.rdio.authenticated()
 
-        assert not rdio.authenticated()
-
-        if not rdio.authenticating():
+        if not self.rdio.authenticating():
             # obtain a request token
             callback_url = wsgiref.util.request_uri(self.request.environ)
-            #callback_url = callback_url.replace('/authrequest', '/authcallback')
-            self.redirect(self.rdio().begin_authentication(callback_url))
+            self.redirect(self.rdio.begin_authentication(callback_url))
         else:
-            self.rdio().complete_authentication(self.request.get('oauth_verifier'))
+            self.rdio.complete_authentication(self.request.get('oauth_verifier'))
             self.redirect('/')
 
 
 class LogoutPage(RdioRequestHandler):
     def get(self):
-        self.rdio().logout()
+        self.rdio.logout()
         self.redirect('/')
 
 
 class HeavyRotationPage(RdioRequestHandler):
     def get(self):
-        heavy_rotation = self.rdio().call('getHeavyRotationForUser', id= 13, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
+        heavy_rotation = self.rdio.call('getHeavyRotationForUser', id= 13, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
 
-        self.response.out.write(template('heavy.html', {
+        self.template('heavy.html', {
             'albums': heavy_rotation['result']['items']
-        }))
+        })
         from pprint import pprint
         pprint(heavy_rotation, self.response.out)
 
