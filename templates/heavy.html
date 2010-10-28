@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Rdiology: Ian's Heavy Rotation</title>
+</head>
+<body>
+<h1>Ian's heavy rotation</h1>
+<ul>
+    {% for album in albums %}
+    <li><img src="{{ album.icon}}">
+        {{ album.name }} by {{ album.artist }}</li>
+    {% endfor %}
+</ul>
+</body>
+</html>

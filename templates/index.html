@@ -9,7 +9,15 @@
 
 <p>Isn't it lovely?</p>
 
-<p><a href="/authrequest">Log with Rdio</a></p>
+{% if authenticated %}
+<p>You're logged in, why don't you do something?</p>
+<ul>
+    <li><a href="/heavy">Ian's network's heavy rotation</a></li>
+</ul>
+<p>or <a href="/logout">log out</a> </p>
+{% else %}
+<p><a href="/auth">Log with Rdio</a></p>
+{% endif %}
 
 </body>
 </html>
