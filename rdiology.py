@@ -16,7 +16,6 @@ class RdioRequestHandler(webapp.RequestHandler):
     __cached_rdio = None
     @property
     def rdio(self):
-        logging.info("get self.rdio")
         if (self.__cached_rdio is None):
             self.__cached_rdio = Rdio(CONSUMER_TOKEN, CONSUMER_SECRET, Cookies(self))
         return self.__cached_rdio
@@ -29,8 +28,6 @@ class RdioRequestHandler(webapp.RequestHandler):
 
 class MainPage(RdioRequestHandler):
     def get(self):
-        logging.info(self.rdio)
-        logging.info(self.rdio.authenticated())
         self.template('index.html', {
             'authenticated': self.rdio.authenticated(),
         })
@@ -57,7 +54,7 @@ class LogoutPage(RdioRequestHandler):
 
 class HeavyRotationPage(RdioRequestHandler):
     def get(self):
-        heavy_rotation = self.rdio.call('getHeavyRotationForUser', id= 13, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
+        heavy_rotation = self.rdio.getHeavyRotationForUser(id= 13, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
 
         self.template('heavy.html', {
             'albums': heavy_rotation['result']['items']

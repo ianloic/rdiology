@@ -3,8 +3,17 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'python-oauth2'))
 import oauth2 as oauth
 from cgi import parse_qsl
-import urllib
+import urllib, logging
 from django.utils import simplejson as json
+
+
+class RdioMethod(object):
+    def __init__(self, name, rdio):
+        self.name = name
+        self.rdio = rdio
+
+    def __call__(self, **args):
+        return self.rdio.call(self.name, **args)
 
 
 class Rdio(object):
@@ -15,17 +24,17 @@ class Rdio(object):
         self.__consumer = oauth.Consumer(consumer_token, consumer_secret)
         self.__data_store = data_store
 
-
+    @property
     def authenticating(self):
         return self.__data_store.has_key('request_token')
 
-
+    @property
     def authenticated(self):
         return self.__data_store.has_key('access_token')
 
 
     def begin_authentication(self, callback_url):
-        assert not self.authenticating() and not self.authenticated()
+        assert not self.authenticating and not self.authenticated
 
         resp, content = self.__client().request(Rdio.REQUEST_TOKEN, 'POST',
                                        urllib.urlencode({'oauth_callback':callback_url}))
@@ -37,7 +46,7 @@ class Rdio(object):
 
 
     def complete_authentication(self, oauth_verifier):
-        assert self.authenticating() and not self.authenticated()
+        assert self.authenticating and not self.authenticated
 
         client = self.__client(oauth_verifier)
         resp, content = client.request(Rdio.ACCESS_TOKEN, "POST")
@@ -49,23 +58,24 @@ class Rdio(object):
 
 
     def logout(self):
-        if self.authenticating():
+        if self.authenticating:
             del self.__data_store['request_token']
-        if self.authenticated():
+        if self.authenticated:
             del self.__data_store['access_token']
 
 
     def __client(self, oauth_verifier=None):
         token = None
-        if self.authenticated():
+        if self.authenticated:
             at = self.__data_store['access_token']
             token = oauth.Token(at['oauth_token'], at['oauth_token_secret'])
-        elif self.authenticating():
+        elif self.authenticating:
             rt = self.__data_store['request_token']
             token = oauth.Token(rt['oauth_token'], rt['oauth_token_secret'])
         if token is not None and oauth_verifier is not None:
             token.set_verifier(oauth_verifier)
         return oauth.Client(self.__consumer, token)
+
 
     def call(self, method, **args):
         args['method'] = method
@@ -74,3 +84,6 @@ class Rdio(object):
         if resp['status'] != '200':
             raise Exception("Invalid response %s." % resp['status'])
         return json.loads(content)
+
+    def __getattr__(self, name):
+        return RdioMethod(name, self)
