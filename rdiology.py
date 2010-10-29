@@ -29,15 +29,15 @@ class RdioRequestHandler(webapp.RequestHandler):
 class MainPage(RdioRequestHandler):
     def get(self):
         self.template('index.html', {
-            'authenticated': self.rdio.authenticated(),
+            'authenticated': self.rdio.authenticated,
         })
 
 
 class AuthPage(RdioRequestHandler):
     def get(self):
-        assert not self.rdio.authenticated()
+        assert not self.rdio.authenticated
 
-        if not self.rdio.authenticating():
+        if not self.rdio.authenticating:
             # obtain a request token
             callback_url = wsgiref.util.request_uri(self.request.environ)
             self.redirect(self.rdio.begin_authentication(callback_url))
