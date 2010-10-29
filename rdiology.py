@@ -63,12 +63,19 @@ class HeavyRotationPage(RdioRequestHandler):
         pprint(heavy_rotation, self.response.out)
 
 
+class SearchPage(RdioRequestHandler):
+    def post(self):
+        results = self.rdio.search_v2(query=self.request.get('q'), filter="albums")
+        self.template('search.html', {'results': results})
+
+
 if __name__ == '__main__':
     from google.appengine.ext.webapp.util import run_wsgi_app
     app = webapp.WSGIApplication([
                 ('/auth', AuthPage),
                 ('/logout', LogoutPage),
                 ('/heavy', HeavyRotationPage),
+                ('/search', SearchPage),
                 ('/', MainPage),
         ],
         debug=True)

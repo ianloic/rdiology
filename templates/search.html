@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Rdiology search results</title>
+</head>
+<body>
+Rdiology search results...
+
+{% for album in results.result.results %}
+<p>
+    <object width="500" height="250">
+        <param name="movie" value="{{album.embedUrl}}"></param>
+        <param name="allowFullScreen" value="true"></param>
+        <param name="allowscriptaccess" value="always"></param>
+        <embed src="{{album.embedUrl}}"
+               type="application/x-shockwave-flash"
+               allowscriptaccess="always"
+               allowfullscreen="true"
+               width="500" height="250"></embed>
+    </object>
+</p>
+{% endfor %}
+
+</body>
+</html>
