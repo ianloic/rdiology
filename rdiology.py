@@ -1,6 +1,8 @@
 CONSUMER_TOKEN='vrun8954fry59w7297mr5ux5'
 CONSUMER_SECRET='MEsUjbamFt'
 
+#CONSUMER_TOKEN='k8amsrt98gfkcxh9jwdcqhjd'
+#CONSUMER_SECRET='92X9hzCUTH'
 
 import os, wsgiref, logging
 
