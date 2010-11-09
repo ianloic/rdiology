@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Rdiology album list</title>
+</head>
+<body>
+Rdiology album list.
+
+{% for album in albums %}
+<div style="clear:left;margin-bottom:10px;">
+    <div style="float:left">
+        <object width="500" height="250">
+            <param name="movie" value="{{album.embedUrl}}"></param>
+            <param name="allowFullScreen" value="true"></param>
+            <param name="allowscriptaccess" value="always"></param>
+            <embed src="{{album.embedUrl}}"
+                   type="application/x-shockwave-flash"
+                   allowscriptaccess="always"
+                   allowfullscreen="true"
+                   width="500" height="250"></embed>
+        </object>
+    </div>
+    <div style="float:left">
+        <textarea style="width:490px;height:244px;margin-left:10px">&lt;object width="500" height="250"&gt;&lt;param name="movie" value="{{album.embedUrl}}"&gt;&lt;/param&gt;&lt;param name="allowFullScreen" value="true"&gt;&lt;/param&gt;&lt;param name="allowscriptaccess" value="always"&gt;&lt;/param&gt;&lt;embed src="{{album.embedUrl}}" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="500" height="250"&gt;&lt;/embed&gt;&lt;/object&gt;</textarea>
+    </div>
+</div>
+<br style="clear:left">
+{% endfor %}
+
+</body>
+</html>

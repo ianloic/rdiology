@@ -65,9 +65,16 @@ class HeavyRotationPage(RdioRequestHandler):
 
 class SearchPage(RdioRequestHandler):
     def post(self):
-        results = self.rdio.search_v2(query=self.request.get('q'), filter="albums")
-        self.template('search.html', {'results': results})
+        results = self.rdio.search_v2(query=self.request.get('q'), filter="artists")
+        if len(results['result']['results']):
+            self.template('artistlist.html', {'artists': results['result']['results']})
+        else:
+            self.redirect('/artist/'+results['result']['results'][0]['key'])
 
+class ArtistPage(RdioRequestHandler):
+    def get(self, key):
+        response = self.rdio.getAlbumsForArtist(id=key[1:], scope='by_this_artist')
+        self.template('albumlist.html', {'albums': response['result']})
 
 if __name__ == '__main__':
     from google.appengine.ext.webapp.util import run_wsgi_app
@@ -76,6 +83,7 @@ if __name__ == '__main__':
                 ('/logout', LogoutPage),
                 ('/heavy', HeavyRotationPage),
                 ('/search', SearchPage),
+                ('/artist/(.*)', ArtistPage),
                 ('/', MainPage),
         ],
         debug=True)

@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Rdiology artist list</title>
+</head>
+<body>
+Rdiology artist list.
+
+<ul>
+{% for artist in artists %}
+    <li><a href="/artist/{{artist.key}}">{{artist.name}}</a></li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
