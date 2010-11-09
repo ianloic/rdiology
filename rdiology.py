@@ -61,8 +61,6 @@ class HeavyRotationPage(RdioRequestHandler):
         self.template('heavy.html', {
             'albums': heavy_rotation['result']['items']
         })
-        from pprint import pprint
-        pprint(heavy_rotation, self.response.out)
 
 
 class SearchPage(RdioRequestHandler):
