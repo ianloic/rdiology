@@ -15,6 +15,22 @@ class RdioMethod(object):
     def __call__(self, **args):
         return self.rdio.call(self.name, **args)
 
+class RdioException(BaseException):
+    pass
+
+class RdioProtocolException(RdioException):
+    def __init__(self, code, content):
+        RdioException.__init__(self)
+        self.code = code
+        self.content = content
+    def __str__(self):
+        return 'RdioProtocolException %s: %s' % (self.code, self.content)    
+
+class RdioAPIException(RdioException):
+    def __init__(self, message):
+        RdioException.__init__(self)
+        self.message = message
+
 
 class Rdio(object):
     REQUEST_TOKEN='http://api.rdio.com/oauth/request_token'
@@ -42,7 +58,7 @@ class Rdio(object):
         resp, content = self.__client().request(Rdio.REQUEST_TOKEN, 'POST',
                                        urllib.urlencode({'oauth_callback':callback_url}))
         if resp['status'] != '200':
-            raise Exception("Invalid response %s." % resp['status'])
+            raise RdioProtocolException(resp['status'], content)
         request_token = dict(parse_qsl(content))
         self.__data_store['request_token'] = request_token
         return (request_token['login_url']+'?oauth_token='+request_token['oauth_token'])
@@ -54,7 +70,7 @@ class Rdio(object):
         client = self.__client(oauth_verifier)
         resp, content = client.request(Rdio.ACCESS_TOKEN, "POST")
         if resp['status'] != '200':
-            raise Exception("Invalid response %s." % resp['status'])
+            raise RdioProtocolException(resp['status'], content)
         access_token = dict(parse_qsl(content))
         self.__data_store['access_token'] = access_token
         del self.__data_store['request_token']
@@ -85,8 +101,14 @@ class Rdio(object):
         client = self.__client()
         resp, content = client.request(Rdio.API, 'POST', urllib.urlencode(args))
         if resp['status'] != '200':
-            raise Exception("Invalid response %s." % resp['status'])
-        return json.loads(content)
+            raise RdioProtocolException(resp['status'], content)
+        logging.info(`content`)
+        response = json.loads(content)
+        if response['status'] == 'ok':
+            return response['result']
+        else:
+            raise RdioAPIException(response['message'])
 
+        
     def __getattr__(self, name):
         return RdioMethod(name, self)
