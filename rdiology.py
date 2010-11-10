@@ -70,7 +70,7 @@ class HeavyRotationPage(RdioRequestHandler):
 
 class SearchPage(RdioRequestHandler):
     def post(self):
-        results = self.rdio.search_v2(query=self.request.get('q'), filter="artists")
+        results = self.rdio.search(query=self.request.get('q'), type="Artist")
         if len(results['results']):
             self.template('artistlist.html', {'artists': results['results']})
         else:
