@@ -10,9 +10,10 @@
 <p>Isn't it lovely?</p>
 
 {% if authenticated %}
-<p>You're logged in, why don't you do something?</p>
+<img src="{{user.icon}}" style="float:right">
+<p>You're logged, {{user.firstName}} {{user.lastName}}, why don't you do something?</p>
 <ul>
-    <li><a href="/heavy">Ian's network's heavy rotation</a></li>
+    <li><a href="/heavy/{{user.key}}">Your network's heavy rotation</a></li>
     <li><form method="POST" action="/search"><input name="q"><input type="submit" value="Search for artists"></form></li>
 </ul>
 <p>or <a href="/logout">log out</a> </p>

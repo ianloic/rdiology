@@ -30,8 +30,13 @@ class RdioRequestHandler(webapp.RequestHandler):
 
 class MainPage(RdioRequestHandler):
     def get(self):
+        if self.rdio.authenticated:
+            user = self.rdio.currentUser()
+        else:
+            user = None
         self.template('index.html', {
             'authenticated': self.rdio.authenticated,
+            'user': user,
         })
 
 
@@ -55,33 +60,33 @@ class LogoutPage(RdioRequestHandler):
 
 
 class HeavyRotationPage(RdioRequestHandler):
-    def get(self):
-        heavy_rotation = self.rdio.getHeavyRotationForUser(id= 13, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
+    def get(self, key):
+        heavy_rotation = self.rdio.getHeavyRotationForUser(key=key, type = 'albums', scope = 'friends', timeframe = 'weighted', attempt_everyone = 'true')
 
         self.template('heavy.html', {
-            'albums': heavy_rotation['result']['items']
+            'albums': heavy_rotation['items']
         })
 
 
 class SearchPage(RdioRequestHandler):
     def post(self):
         results = self.rdio.search_v2(query=self.request.get('q'), filter="artists")
-        if len(results['result']['results']):
-            self.template('artistlist.html', {'artists': results['result']['results']})
+        if len(results['results']):
+            self.template('artistlist.html', {'artists': results['results']})
         else:
-            self.redirect('/artist/'+results['result']['results'][0]['key'])
+            self.redirect('/artist/'+results['results'][0]['key'])
 
 class ArtistPage(RdioRequestHandler):
     def get(self, key):
-        response = self.rdio.getAlbumsForArtist(id=key[1:], scope='by_this_artist')
-        self.template('albumlist.html', {'albums': response['result']})
+        albums = self.rdio.getAlbumsForArtist(id=key[1:], scope='by_this_artist')
+        self.template('albumlist.html', {'albums': albums})
 
 if __name__ == '__main__':
     from google.appengine.ext.webapp.util import run_wsgi_app
     app = webapp.WSGIApplication([
                 ('/auth', AuthPage),
                 ('/logout', LogoutPage),
-                ('/heavy', HeavyRotationPage),
+                ('/heavy/(.*)', HeavyRotationPage),
                 ('/search', SearchPage),
                 ('/artist/(.*)', ArtistPage),
                 ('/', MainPage),
