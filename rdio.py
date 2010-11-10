@@ -6,6 +6,7 @@ from cgi import parse_qsl
 import urllib, logging
 from django.utils import simplejson as json
 
+DEV = False
 
 class RdioMethod(object):
     def __init__(self, name, rdio):
@@ -33,12 +34,14 @@ class RdioAPIException(RdioException):
 
 
 class Rdio(object):
-    REQUEST_TOKEN='http://api.rdio.com/oauth/request_token'
-    ACCESS_TOKEN='http://api.rdio.com/oauth/access_token'
-    API='http://api.rdio.com/1/'
-    #REQUEST_TOKEN='http://rdio-dev.api.mashery.com/oauth/request_token'
-    #ACCESS_TOKEN='http://rdio-dev.api.mashery.com/oauth/access_token'
-    #API='http://rdio-dev.api.mashery.com/api/1/'
+    if DEV:
+        REQUEST_TOKEN='http://rdio-dev.api.mashery.com/oauth/request_token'
+        ACCESS_TOKEN='http://rdio-dev.api.mashery.com/oauth/access_token'
+        API='http://rdio-dev.api.mashery.com/api/1/'
+    else:
+        REQUEST_TOKEN='http://api.rdio.com/oauth/request_token'
+        ACCESS_TOKEN='http://api.rdio.com/oauth/access_token'
+        API='http://api.rdio.com/1/'
     def __init__(self, consumer_token, consumer_secret, data_store):
         self.__consumer = oauth.Consumer(consumer_token, consumer_secret)
         self.__data_store = data_store

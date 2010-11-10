@@ -1,8 +1,10 @@
-CONSUMER_TOKEN='vrun8954fry59w7297mr5ux5'
-CONSUMER_SECRET='MEsUjbamFt'
-
-#CONSUMER_TOKEN='k8amsrt98gfkcxh9jwdcqhjd'
-#CONSUMER_SECRET='92X9hzCUTH'
+from rdio import DEV
+if DEV:
+    CONSUMER_TOKEN='k8amsrt98gfkcxh9jwdcqhjd'
+    CONSUMER_SECRET='92X9hzCUTH'
+else:
+    CONSUMER_TOKEN='vrun8954fry59w7297mr5ux5'
+    CONSUMER_SECRET='MEsUjbamFt'
 
 import os, wsgiref, logging
 
